@@ -29,6 +29,12 @@ npm test             # 数据层测试
 npm run dist         # 打包成 Windows 安装包，产物在 release/
 ```
 
+`npm run dist` 出两个约 79 MB 的 exe：`灵感便签 Setup 1.0.0.exe` 是安装包，
+`灵感便签 1.0.0.exe` 是免安装版，双击即用。
+
+没有代码签名，所以首次运行 SmartScreen 会拦一下「未知发布者」，
+点「更多信息 → 仍要运行」。要去掉这个提示得买代码签名证书。
+
 ## 快捷键
 
 | 键 | 作用 |
@@ -110,7 +116,7 @@ Win10 确实能用未公开的 `SetWindowCompositionAttribute` 开出真模糊
 electron/
   main.js       窗口 / 托盘 / 全局快捷键 / IPC
   store.js      数据层，原子写入
-  acrylic.js    Windows 毛玻璃，带降级
+  acrylic.js    Win11 系统 acrylic；Win10 为什么不做模糊，原因写在里面
   preload.js    contextBridge 暴露的 API
 src/
   App.jsx       主窗口
@@ -120,4 +126,17 @@ scripts/
   make-icons.js 手写 PNG 编码器生成图标，不依赖图形库
   test-store.js 数据层测试
   seed-demo.js  塞示例数据（会覆盖现有数据，慎用）
+round-probe.js  圆角 × 模糊的四组对照实验，动窗口视觉之前先跑
+```
+
+改窗口四角、透明度、模糊这些东西时，`scripts/` 下这几个是用来**看**结果的，
+因为这类问题光读代码判断不了，必须看像素：
+
+```
+corners.ps1      把四个角截下来放大拼成 2x2。-Backdrop White 会在窗口后面垫一块
+                 白板 —— 深色的方角压在深色桌面上根本看不出来，必须白底才露馅
+stress.ps1       -Mode maximize|drag|resize，跑几条容易把窗口视觉搞坏的路径
+windows.ps1      列出顶层窗口的 pid / 尺寸 / 标题 / exe，用来确认截的是哪扇窗
+region-check.ps1 读窗口的裁切区域。注意现在的实现不用 SetWindowRgn，它报
+                 「NO REGION」是正常的，别拿它判断圆角
 ```
