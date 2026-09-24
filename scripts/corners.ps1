@@ -21,9 +21,11 @@ public class Win32Rect3 {
 "@
 if (-not ('Win32Rect3' -as [type])) { Add-Type -TypeDefinition $sig }
 
-# Match by exe path: other Electron apps (e.g. the console) are usually running too.
+# Match by exe path: other Electron apps are usually running too, and picking the
+# wrong one means screenshotting somebody else's window.
+$root = Split-Path -Parent $PSScriptRoot
 $proc = Get-Process electron -ErrorAction SilentlyContinue |
-        Where-Object { $_.MainWindowHandle -ne 0 -and $_.Path -like '*code project*' } |
+        Where-Object { $_.MainWindowHandle -ne 0 -and $_.Path -and $_.Path.StartsWith($root, 'OrdinalIgnoreCase') } |
         Select-Object -First 1
 if (-not $proc) { Write-Output 'no window'; exit 1 }
 Write-Output "pid $($proc.Id)"
@@ -77,7 +79,7 @@ $gf.Dispose()
 [void][Win32Rect3]::SetWindowPos($hwnd, [IntPtr](-2), 0,0,0,0, 0x0043)  # HWND_NOTOPMOST
 if ($form) { $form.Close(); $form.Dispose() }
 
-$full.Save('C:\Users\Administrator\Documents\code project\window.png', [System.Drawing.Imaging.ImageFormat]::Png)
+$full.Save((Join-Path $root 'window.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 
 $cell = $Pad * $Zoom
 $out = New-Object System.Drawing.Bitmap -ArgumentList ($cell * 2 + 12), ($cell * 2 + 12)
@@ -98,6 +100,6 @@ foreach ($c in $corners) {
   $g.DrawImage($full, $dst, $sub, [System.Drawing.GraphicsUnit]::Pixel)
 }
 
-$out.Save('C:\Users\Administrator\Documents\code project\corners.png', [System.Drawing.Imaging.ImageFormat]::Png)
+$out.Save((Join-Path $root 'corners.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 $g.Dispose(); $out.Dispose(); $full.Dispose()
 Write-Output 'corners.png ok'

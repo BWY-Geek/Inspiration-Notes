@@ -1,5 +1,15 @@
-# Objective corner test: read the window's clip region from the OS and ask
-# whether the extreme corner pixels are inside it. Rounded == corner pixels OUT.
+# Read the window's clip region from the OS and ask whether the extreme corner
+# pixels are inside it.
+#
+# HEADS UP: this app no longer uses SetWindowRgn -- the corners are drawn by CSS
+# (see electron/acrylic.js for why). So "NO REGION -> all four corners SQUARE" is
+# the EXPECTED output now, and it does NOT mean the corners look square. This
+# script only means something for the SetWindowRgn approach.
+#
+# And even then: a region you can read back is not proof the corners render
+# rounded. With system blur on, DWM accepts the region and ignores it. Judge
+# corners from a screenshot on a WHITE backdrop, never from this script.
+#
 # ASCII comments only (PowerShell 5.1 reads .ps1 as ANSI).
 param([int]$Radius = 13)
 
@@ -21,10 +31,11 @@ public class Rgn {
 }
 '@
 
+$root = Split-Path -Parent $PSScriptRoot
 $targets = @()
 foreach ($p in (Get-Process electron -ErrorAction SilentlyContinue)) {
   $ok = $false
-  try { $ok = ($p.Path -like '*code project*') } catch {}
+  try { $ok = ($p.Path -and $p.Path.StartsWith($root, 'OrdinalIgnoreCase')) } catch {}
   if ($ok) { $targets += $p.Id }
 }
 if ($targets.Count -eq 0) { Write-Output 'app not running'; exit 1 }

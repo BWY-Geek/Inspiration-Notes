@@ -18,8 +18,9 @@ public class Stress {
 }
 '@
 
+$root = Split-Path -Parent $PSScriptRoot
 $proc = Get-Process electron -ErrorAction SilentlyContinue |
-        Where-Object { $_.MainWindowHandle -ne 0 -and $_.Path -like '*code project*' } |
+        Where-Object { $_.MainWindowHandle -ne 0 -and $_.Path -and $_.Path.StartsWith($root, 'OrdinalIgnoreCase') } |
         Select-Object -First 1
 if (-not $proc) { Write-Output 'no window'; exit 1 }
 $hwnd = $proc.MainWindowHandle
