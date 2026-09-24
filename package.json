@@ -1,0 +1,74 @@
+{
+  "name": "spark-notes",
+  "productName": "灵感便签",
+  "version": "1.0.0",
+  "description": "随时记录灵感，按类归档",
+  "main": "electron/main.js",
+  "author": "Administrator",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -k -n VITE,ELECTRON -c cyan,magenta \"vite\" \"wait-on tcp:5173 && cross-env NODE_ENV=development electron .\"",
+    "build": "vite build",
+    "start": "vite build && electron .",
+    "dist": "vite build && electron-builder --win",
+    "test": "node scripts/test-store.js",
+    "icons": "node scripts/make-icons.js"
+  },
+  "dependencies": {
+    "koffi": "^3.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^33.3.1",
+    "electron-builder": "^25.1.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.spark.notes",
+    "productName": "灵感便签",
+    "files": [
+      "electron/**/*",
+      "dist/**/*",
+      "build/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "asarUnpack": [
+      "**/node_modules/koffi/**"
+    ],
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "灵感便签"
+    }
+  },
+  "allowScripts": {
+    "electron@33.4.11": true,
+    "esbuild@0.25.12": true,
+    "koffi@3.3.1": true
+  }
+}

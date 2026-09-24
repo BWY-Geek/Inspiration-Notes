@@ -1,0 +1,14 @@
+# 依赖
+node_modules/
+
+# 构建产物：dist 由 vite build 生成，release 由 electron-builder 生成
+dist/
+release/
+
+# 本地工具配置
+.claude/settings.local.json
+
+# 调试脚本（scripts/corners.ps1）截出来的图
+corners.png
+window.png
+*.log

@@ -1,0 +1,140 @@
+/* 速记窗口：透明背景里浮一张玻璃卡片 */
+
+body.quick-body { background: transparent; }
+
+.quick-root { padding: 12px; }
+
+.quick-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  padding: 13px 14px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 50%),
+    rgba(var(--bg), calc(var(--glass-a) * 0.5 + 0.46));
+  backdrop-filter: blur(30px) saturate(175%);
+  -webkit-backdrop-filter: blur(30px) saturate(175%);
+  /* 投影必须在 .quick-root 那 12px 边距里衰减完。
+     原来是 0 24px 60px，扩散远远超出边距，被窗口矩形一刀切断 ——
+     整扇窗糊成一块深色方形，卡片这 14px 圆角就埋在里面看不见了。 */
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  -webkit-app-region: drag;
+  animation: quick-in 0.14s ease-out;
+}
+
+/* 原生模糊生效时，系统那层是按窗口矩形画的：卡片铺满整扇窗，
+   圆角交给主进程的 SetWindowRgn 去裁（半径要和这里一致）。
+   外投影也去掉 —— 投影落在窗口里面，会被一起裁掉，只剩一圈脏边。 */
+html.native-blur .quick-root { padding: 0; }
+html.native-blur .quick-card {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 15px 16px 11px;
+}
+
+@keyframes quick-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+.quick-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(420px 160px at 8% -20%, rgba(247, 192, 74, 0.16), transparent 65%);
+  mix-blend-mode: screen;
+}
+
+.quick-card textarea,
+.quick-card select,
+.quick-card button { -webkit-app-region: no-drag; }
+
+.quick-input { position: relative; display: flex; align-items: flex-start; gap: 10px; }
+.quick-mark {
+  margin-top: 6px;
+  color: var(--accent);
+  filter: drop-shadow(0 0 8px rgba(247, 192, 74, 0.6));
+}
+.quick-input textarea {
+  flex: 1;
+  min-height: 30px;
+  max-height: 320px;
+  padding: 3px 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  color: var(--fg);
+  font-size: 16px;
+  line-height: 1.55;
+  user-select: text;
+}
+.quick-input textarea::placeholder { color: var(--faint); }
+
+.quick-foot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.quick-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+}
+.quick-group select {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--fg-dim);
+  font-size: 11.5px;
+  cursor: pointer;
+  max-width: 190px;
+}
+.quick-group select option { background: #191a24; color: var(--fg); }
+
+.quick-hints {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--faint);
+}
+.quick-hints span { display: inline-flex; align-items: center; gap: 3px; }
+
+.link {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 10.5px;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.85;
+}
+.link:hover { opacity: 1; text-decoration: underline; }
+
+.quick-saved {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  height: 78px;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  animation: saved-in 0.18s ease-out;
+}
+@keyframes saved-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
